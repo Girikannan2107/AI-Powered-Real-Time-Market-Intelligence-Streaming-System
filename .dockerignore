@@ -1,0 +1,13 @@
+venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.env
+*.csv
+*.json
+*.pkl
+*.pt
+*.bin
+*.db
+node_modules

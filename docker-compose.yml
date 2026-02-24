@@ -1,0 +1,102 @@
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - stocknet
+    restart: always
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: ["CMD", "bash", "-c", "nc -z localhost 9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - stocknet
+    restart: always
+
+  news_producer:
+    build: .
+    container_name: news_producer
+    command: python producers/news_producer.py
+    env_file:
+      - .env
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - stocknet
+    restart: always
+
+  market_producer:
+    build: .
+    container_name: market_producer
+    command: python producers/market_producer.py
+    env_file:
+      - .env
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - stocknet
+    restart: always
+
+  pathway_engine:
+    build: .
+    container_name: pathway_engine
+    command: python pathway_app/main.py
+    env_file:
+      - .env
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - stocknet
+    restart: always
+
+  api:
+    build: .
+    container_name: fastapi_server
+    command: uvicorn api.server:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - stocknet
+    restart: always
+
+  rag_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.rag
+    container_name: rag_service
+    ports:
+      - "9000:9000"
+    env_file:
+      - .env
+    networks:
+      - stocknet
+    restart: always
+
+networks:
+  stocknet:
+    driver: bridge
