@@ -1,13 +1,24 @@
-venv
-__pycache__
+# Python
+venv/
+__pycache__/
 *.pyc
-.git
-.gitignore
+
+# Environment
 .env
-*.csv
-*.json
-*.pkl
-*.pt
-*.bin
+
+# Docker
+*.log
 *.db
-node_modules
+
+# Streamlit
+.streamlit/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files
+data/*.csv

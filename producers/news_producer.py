@@ -3,6 +3,15 @@ import time
 import random
 from kafka import KafkaProducer
 
+
+news_data = {
+    "symbol": "AAPL",
+    "title": headline,
+    "sentiment": sentiment,
+    "price": random.uniform(250, 280),  # ADD THIS
+    "timestamp": time.time()
+}
+
 producer = KafkaProducer(
     bootstrap_servers="kafka:9092",
     value_serializer=lambda v: json.dumps(v).encode("utf-8")

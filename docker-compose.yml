@@ -97,6 +97,27 @@ services:
       - stocknet
     restart: always
 
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: streamlit_ui
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    restart: always
+  
+  live_generator:
+    build: .
+    container_name: live_generator
+    command: python producers/live_generator.py
+    depends_on:
+      - kafka
+    networks:
+      - stocknet
+    restart: always 
+
 networks:
   stocknet:
     driver: bridge

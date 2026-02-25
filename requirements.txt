@@ -9,3 +9,9 @@ openai
 pdf2image
 pillow
 unstructured
+streamlit
+plotly
+requests
+pandas
+streamlit-autorefresh
+websocket-client
